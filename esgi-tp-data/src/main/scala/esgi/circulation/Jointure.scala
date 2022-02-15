@@ -1,20 +1,24 @@
 package esgi.circulation
+from pyspark.sql import SparkSession
+
 
 
 object Jointure {
   def main(args: Array[String]): Unit = {
-    // TODO : créer son SparkSession
-    val spark = ???
+    
+    val spark = SparkSession.builder.config(sc.getConf).getOrCreate()
 
     val inputFile = args(0)
     val joinFile = args(1)
     val outputFile = args(2)
-    // TODO : lire son fichier d'input et son fichier de jointure
-    val df = ???
-    val joinDf = ???
 
-    // TODO : ajouter ses transformations Spark avec au minimum une jointure et une agrégation
 
-    // TODO : écrire le résultat dans un format pratique pour la dataviz
+    val df_inputFile = inputFile.spark.read.format("parquet")
+    val df_joinFile = joinFile.spark.read.format("parquet")
+
+    
+    val outputFile_df = df_inputFile.join(df_joinFile, df_inputFile("iu_ac") === df_joinFile("iu_ac"))
+
+    outputFile_df.write.mode(SaveMode.Overwrite).format("parquet").saveAsTable(outputFile)
   }
 }
